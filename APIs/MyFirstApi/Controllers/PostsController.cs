@@ -1,22 +1,30 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MyFirstApi.Models;
+using MyFirstApi.Services;
 
-namespace MyApp.Namespace
+namespace MyFirstApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class PostsController : ControllerBase
     {
-        [HttpGet]
-        public ActionResult<List<Post>> GetPosts()
+        private readonly PostService _postService;
+
+        public PostsController()
         {
-            return new List<Post>
+            _postService = new PostService();
+        }
+        
+        [HttpGet("{id}")]
+        public async Task<ActionResult<List<Post>>> GetPost(int id)
+        {
+            var post = await _postService.GetPost(id);
+            if (post == null)
             {
-                new() {Id = 1, UserId= 1, Title = "Post1", Body = "The first post." },
-                new() {Id = 2, UserId= 2, Title = "Post2", Body = "The second post." },
-                new() {Id = 3, UserId= 3, Title = "Post3", Body = "The third post." },
-            };
+                return NotFound();
+            }
+
+            return Ok(post);
         }
     }
 }
